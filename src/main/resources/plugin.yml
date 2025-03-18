@@ -1,0 +1,7 @@
+name: DaisyVotes
+version: '1.0'
+main: wtf.amari.daisyVotes.DaisyVotes
+api-version: '1.21'
+authors: [ Fu3i0n ]
+description: Simple But Working Vote/Voteparty Plugin
+website: https://amari.wtf

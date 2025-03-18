@@ -1,0 +1,9 @@
+voting:
+  message: "<#1aff1a>Thank you for voting! <#ff1a1a>Here are your rewards."
+  rewards:
+    - "crate key give %player% vote 1"
+voteparty:
+  message: "<#1aff1a>Vote party! <#ff1a1a>Everyone gets a reward."
+  totalvotes: 25
+  rewards:
+    - "crate key giveall legendary 1"
