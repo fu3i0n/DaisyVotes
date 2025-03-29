@@ -22,7 +22,7 @@ repositories {
 val versions =
     mapOf(
         "paperApi" to "1.21.4-R0.1-SNAPSHOT",
-        "kotlinStdlib" to "2.1.10",
+        "kotlinStdlib" to "2.1.20",
         "placeholderApi" to "2.11.6",
         "kotlinCoroutines" to "1.10.1",
         "ktlint" to "1.5.0",
