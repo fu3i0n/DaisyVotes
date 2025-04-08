@@ -24,7 +24,7 @@ val versions =
         "paperApi" to "1.21.4-R0.1-SNAPSHOT",
         "kotlinStdlib" to "2.1.20",
         "placeholderApi" to "2.11.6",
-        "kotlinCoroutines" to "1.10.1",
+        "kotlinCoroutines" to "1.10.2",
         "ktlint" to "1.5.0",
         "hikariCP" to "6.3.0",
         "sqlite" to "3.49.1.0",
