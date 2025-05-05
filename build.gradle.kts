@@ -28,7 +28,7 @@ val versions =
         "ktlint" to "1.5.0",
         "hikariCP" to "6.3.0",
         "sqlite" to "3.49.1.0",
-        "exposed" to "0.60.0",
+        "exposed" to "0.61.0",
         "votifer" to "2.7.2",
     )
 
