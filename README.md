@@ -76,4 +76,3 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 - **Issues**: [Report Issues](https://github.com/fu3i0n/DaisyVotes/issues)
 
 Thank you for your support! 🎉
-```
