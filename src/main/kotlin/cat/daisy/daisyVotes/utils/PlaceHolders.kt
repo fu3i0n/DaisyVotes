@@ -1,10 +1,10 @@
-package wtf.amari.daisyVotes.utils
+package cat.daisy.daisyVotes.utils
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import wtf.amari.daisyVotes.DaisyVotes
-import wtf.amari.daisyVotes.managers.VoteManager
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.managers.VoteManager
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit

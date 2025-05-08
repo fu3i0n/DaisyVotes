@@ -1,14 +1,14 @@
-package wtf.amari.daisyVotes.managers
+package cat.daisy.daisyVotes.managers
 
 import com.vexsoftware.votifier.model.VotifierEvent
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
-import wtf.amari.daisyVotes.DaisyVotes
-import wtf.amari.daisyVotes.utils.Database
-import wtf.amari.daisyVotes.utils.TextUtils.log
-import wtf.amari.daisyVotes.utils.TextUtils.mm
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.utils.Database
+import cat.daisy.daisyVotes.utils.TextUtils.log
+import cat.daisy.daisyVotes.utils.TextUtils.mm
 import java.util.concurrent.ConcurrentHashMap
 
 class VoteManager : Listener {

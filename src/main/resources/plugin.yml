@@ -1,7 +1,25 @@
 name: DaisyVotes
-version: '1.0'
-main: wtf.amari.daisyVotes.DaisyVotes
+version: '1.2'
+main: cat.daisy.daisyVotes.DaisyVotes
 api-version: '1.21'
-authors: [ Fu3i0n ]
+authors: [ Daisy ]
 description: Simple But Working Vote/Voteparty Plugin
-website: https://amari.wtf
+website: https://daisy.cat
+depend: [ Votifier ]
+softdepend: [PlaceholderAPI]
+
+# Libraries - These will be downloaded by the server
+libraries:
+  # Kotlin dependencies
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20
+  - org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2
+
+  # Database dependencies
+  - com.zaxxer:HikariCP:6.3.0
+  - org.xerial:sqlite-jdbc:3.49.1.0
+
+  # Exposed SQL dependencies
+  - org.jetbrains.exposed:exposed-core:0.61.0
+  - org.jetbrains.exposed:exposed-dao:0.61.0
+  - org.jetbrains.exposed:exposed-jdbc:0.61.0
+  - org.jetbrains.exposed:exposed-java-time:0.61.0

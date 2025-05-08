@@ -1,12 +1,12 @@
-package wtf.amari.daisyVotes.managers
+package cat.daisy.daisyVotes.managers
 
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import wtf.amari.daisyVotes.DaisyVotes
-import wtf.amari.daisyVotes.DaisyVotes.Companion.mainConfig
-import wtf.amari.daisyVotes.utils.TextUtils.mm
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.DaisyVotes.Companion.mainConfig
+import cat.daisy.daisyVotes.utils.TextUtils.mm
 import java.io.File
 import java.io.IOException
 
@@ -56,7 +56,7 @@ object ConfigManager {
     }
 
     fun saveMainConfig() {
-        saveConfig(DaisyVotes.mainConfig, DaisyVotes.mainConfigFile)
+        saveConfig(mainConfig, DaisyVotes.mainConfigFile)
     }
 
     fun saveAllConfigs() {

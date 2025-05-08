@@ -1,4 +1,4 @@
-package wtf.amari.daisyVotes
+package cat.daisy.daisyVotes
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -6,11 +6,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
-import wtf.amari.daisyVotes.managers.ConfigManager
-import wtf.amari.daisyVotes.managers.VoteManager
-import wtf.amari.daisyVotes.utils.Database
-import wtf.amari.daisyVotes.utils.PlaceHolders
-import wtf.amari.daisyVotes.utils.TextUtils.log
+import cat.daisy.daisyVotes.managers.ConfigManager
+import cat.daisy.daisyVotes.managers.VoteManager
+import cat.daisy.daisyVotes.utils.Database
+import cat.daisy.daisyVotes.utils.PlaceHolders
+import cat.daisy.daisyVotes.utils.TextUtils.log
 import java.io.File
 
 class DaisyVotes : JavaPlugin() {

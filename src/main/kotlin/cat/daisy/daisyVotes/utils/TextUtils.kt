@@ -1,4 +1,4 @@
-package wtf.amari.daisyVotes.utils
+package cat.daisy.daisyVotes.utils
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
