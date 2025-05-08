@@ -1,4 +1,4 @@
-```markdown
+
 # 🎉 DaisyVotes 🎉
 
 DaisyVotes is a **modern, scalable, and feature-rich voting system** built with **Kotlin** and **Java**. Designed to handle everything from small polls to large-scale elections, DaisyVotes is the perfect solution for developers and organizations looking for a reliable and customizable voting system.
