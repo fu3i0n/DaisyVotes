@@ -1,10 +1,10 @@
 package cat.daisy.daisyVotes.utils
 
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.managers.VoteManager
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
-import cat.daisy.daisyVotes.DaisyVotes
-import cat.daisy.daisyVotes.managers.VoteManager
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit

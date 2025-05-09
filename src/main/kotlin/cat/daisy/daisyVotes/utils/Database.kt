@@ -1,7 +1,10 @@
 package cat.daisy.daisyVotes.utils
 
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.utils.TextUtils.log
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
@@ -9,9 +12,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import cat.daisy.daisyVotes.DaisyVotes
-import cat.daisy.daisyVotes.utils.TextUtils.log
-import org.jetbrains.exposed.sql.Database
 import java.io.File
 
 object Database {

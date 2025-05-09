@@ -1,16 +1,16 @@
 package cat.daisy.daisyVotes
 
+import cat.daisy.daisyVotes.managers.ConfigManager
+import cat.daisy.daisyVotes.managers.VoteManager
+import cat.daisy.daisyVotes.utils.Database
+import cat.daisy.daisyVotes.utils.PlaceHolders
+import cat.daisy.daisyVotes.utils.TextUtils.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
-import cat.daisy.daisyVotes.managers.ConfigManager
-import cat.daisy.daisyVotes.managers.VoteManager
-import cat.daisy.daisyVotes.utils.Database
-import cat.daisy.daisyVotes.utils.PlaceHolders
-import cat.daisy.daisyVotes.utils.TextUtils.log
 import java.io.File
 
 class DaisyVotes : JavaPlugin() {

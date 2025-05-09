@@ -1,12 +1,12 @@
 package cat.daisy.daisyVotes.managers
 
+import cat.daisy.daisyVotes.DaisyVotes
+import cat.daisy.daisyVotes.DaisyVotes.Companion.mainConfig
+import cat.daisy.daisyVotes.utils.TextUtils.mm
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import cat.daisy.daisyVotes.DaisyVotes
-import cat.daisy.daisyVotes.DaisyVotes.Companion.mainConfig
-import cat.daisy.daisyVotes.utils.TextUtils.mm
 import java.io.File
 import java.io.IOException
 
