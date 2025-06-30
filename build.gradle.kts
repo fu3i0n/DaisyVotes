@@ -27,7 +27,7 @@ val versions =
         "kotlinCoroutines" to "1.10.2",
         "ktlint" to "1.6.0",
         "hikariCP" to "6.3.0",
-        "sqlite" to "3.50.1.0",
+        "sqlite" to "3.50.2.0",
         "exposed" to "0.61.0",
         "votifer" to "2.7.2",
     )
