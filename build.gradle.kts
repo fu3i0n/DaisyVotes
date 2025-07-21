@@ -25,7 +25,7 @@ val versions =
         "kotlinStdlib" to "2.1.20",
         "placeholderApi" to "2.11.6",
         "kotlinCoroutines" to "1.10.2",
-        "ktlint" to "1.6.0",
+        "ktlint" to "1.7.1",
         "hikariCP" to "6.3.0",
         "sqlite" to "3.50.2.0",
         "exposed" to "0.61.0",
