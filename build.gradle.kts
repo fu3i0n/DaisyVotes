@@ -26,7 +26,7 @@ val versions =
         "placeholderApi" to "2.11.6",
         "kotlinCoroutines" to "1.10.2",
         "ktlint" to "1.6.0",
-        "hikariCP" to "6.3.0",
+        "hikariCP" to "7.0.2",
         "sqlite" to "3.50.2.0",
         "exposed" to "0.61.0",
         "votifer" to "2.7.2",
