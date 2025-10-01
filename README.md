@@ -41,13 +41,33 @@ cd DaisyVotes
 DaisyVotes offers an easy-to-use configuration file to customize your voting system. Example:
 
 ```yaml
+# Configuration for individual voting rewards
 voting:
-  enabled: true
-  maxVotes: 100
-  rewardThreshold: 50
+  # Message sent to the player when they vote
+  message: "<#1aff1a>Thank you for voting! <#ff1a1a>Here are your rewards."
+
+  # List of commands executed when a player votes
+  # %player% is replaced with the player's name
   rewards:
-    - "Bonus Points"
-    - "Exclusive Badge"
+    - "crate key give %player% vote 1" # Gives the player 1 vote crate key
+
+# Configuration for vote party rewards
+voteparty:
+  # Message broadcasted to all players when a vote party is triggered
+  message: "<#1aff1a>Vote party! <#ff1a1a>Everyone gets a reward."
+
+  # Number of votes required to trigger a vote party
+  totalvotes: 25
+
+  # Determines how rewards are distributed:
+  # "individual" - Rewards are given to each player individually
+  # "server-wide" - Rewards are given to the entire server
+  rewardType: "individual"
+
+  # List of commands executed during a vote party
+  # %player% is replaced with the player's name (only for "individual" rewardType)
+  rewards:
+    - "crate key give %player% vote 1" # Gives each player 1 vote crate key
 ```
 
 ---

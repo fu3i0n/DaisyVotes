@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val ktlint by configurations.creating
 
@@ -8,7 +9,7 @@ plugins {
 }
 
 group = "cat.daisy"
-version = "1.2"
+version = "1.3"
 
 repositories {
     mavenCentral()
@@ -22,7 +23,7 @@ repositories {
 val versions =
     mapOf(
         "paperApi" to "1.21.4-R0.1-SNAPSHOT",
-        "kotlinStdlib" to "2.1.20",
+        "kotlin" to "2.1.20", // 🔹 renamed to match usage
         "placeholderApi" to "2.11.6",
         "kotlinCoroutines" to "1.10.2",
         "ktlint" to "1.7.1",
@@ -43,15 +44,15 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:${versions["exposed"]}")
     implementation("org.jetbrains.exposed:exposed-jdbc:${versions["exposed"]}")
     implementation("org.jetbrains.exposed:exposed-java-time:${versions["exposed"]}")
-// Database dependencies - these will be downloaded by the server via plugin.yml
+
+    // Database dependencies - these will be downloaded by the server via plugin.yml
     compileOnly("com.zaxxer:HikariCP:${versions["hikariCP"]}") {
-        // Exclude unnecessary transitive dependencies
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
     compileOnly("org.xerial:sqlite-jdbc:${versions["sqlite"]}") {
-        // SQLite JDBC driver can be quite large, so exclude unnecessary parts
         exclude(group = "org.xerial", module = "sqlite-jdbc-macros")
     }
+
     ktlint("com.pinterest.ktlint:ktlint-cli:${versions["ktlint"]}") {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
@@ -68,14 +69,17 @@ val ktlintCheck by tasks.registering(JavaExec::class) {
 }
 
 val targetJavaVersion = 21
+
 kotlin {
     jvmToolchain(targetJavaVersion)
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
-            jvmTarget = targetJavaVersion.toString()
-        }
+}
+
+// ✅ New compilerOptions DSL
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+        jvmTarget.set(JvmTarget.fromTarget(targetJavaVersion.toString()))
     }
 }
 
@@ -83,15 +87,17 @@ tasks {
     check {
         dependsOn(ktlintCheck)
     }
-    // Configure the build task to depend on shadowJar and be finalized by printJarSize
+
     build {
         dependsOn("shadowJar")
         finalizedBy("printJarSize")
     }
+
     register<Copy>("copyDependencies") {
         from(configurations.runtimeClasspath)
-        into("$buildDir/libs")
+        into(layout.buildDirectory.dir("libs"))
     }
+
     register<JavaExec>("ktlintFormat") {
         group = LifecycleBasePlugin.VERIFICATION_GROUP
         description = "Check Kotlin code style and format"
@@ -109,21 +115,16 @@ tasks {
             expand(mapOf("version" to versionValue))
         }
     }
+
     withType<ShadowJar> {
-        // Set a classifier to distinguish from regular JAR
         archiveClassifier.set("shaded")
 
-        // Maven Central dependencies will be downloaded by the server via plugin.yml
-
-        // Enable minimization to remove unused classes
         minimize {
-            // Exclude certain packages from minimization if they cause issues
             exclude(dependency("org.jetbrains.exposed:.*:.*"))
             exclude(dependency("org.jetbrains.kotlin:.*:.*"))
             exclude(dependency("org.jetbrains.kotlinx:.*:.*"))
         }
 
-        // Exclude unnecessary files to reduce JAR size
         exclude("META-INF/*.SF")
         exclude("META-INF/*.DSA")
         exclude("META-INF/*.RSA")
@@ -140,30 +141,24 @@ tasks {
         exclude("**/*.kotlin_metadata")
         exclude("**/*.kotlin_builtins")
 
-        // Merge service files instead of overwriting
         mergeServiceFiles()
 
-        // Configure the JAR manifest
         manifest {
             attributes(
                 "Implementation-Title" to project.name,
                 "Implementation-Version" to project.version,
                 "Built-By" to System.getProperty("user.name"),
-                // Date is omitted to avoid import issues
             )
         }
     }
 
-    // Task to print the size of the final JAR file
     register("printJarSize") {
         dependsOn("shadowJar")
         doLast {
-            // Look for JAR files in the build/libs directory
-            val libsDir = file("$buildDir/libs")
-            val jarFiles =
-                libsDir.listFiles { file ->
-                    file.name.endsWith("-shaded.jar")
-                }
+            val libsDir = layout.buildDirectory.dir("libs").get().asFile
+            val jarFiles = libsDir.listFiles { file ->
+                file.name.endsWith("-shaded.jar")
+            }
 
             if (jarFiles != null && jarFiles.isNotEmpty()) {
                 val jarFile = jarFiles.first()
