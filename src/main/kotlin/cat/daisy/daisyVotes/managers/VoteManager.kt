@@ -8,34 +8,36 @@ import com.vexsoftware.votifier.model.VotifierEvent
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.plugin.java.JavaPlugin
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 class VoteManager : Listener {
-    private val plugin: JavaPlugin = DaisyVotes.instance
     private val config = DaisyVotes.mainConfig
 
     companion object {
         val currentVotes = AtomicInteger(Database.getVoteCount())
-        private val voteCache = ConcurrentHashMap<String, Int>()
     }
 
     private val totalVotesNeeded: Int
         get() = config.getInt("voteparty.totalvotes", 25)
 
-    fun handleVote(playerName: String) {
-        val player = Bukkit.getPlayer(playerName)
-        if (player?.isOnline == true) {
-            val voteMessage = config.getString("voting.message")?.mm() ?: return
-            player.sendMessage(voteMessage)
-            config.getStringList("voting.rewards").forEach { reward ->
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reward.replace("%player%", playerName))
-            }
-        } else {
-            log("Player not found or not online: $playerName", "WARNING")
-            return
+    @EventHandler
+    fun onVote(event: VotifierEvent) {
+        runCatching {
+            handleVote(event.vote.username)
+        }.onFailure { e ->
+            log("Error handling vote for player ${event.vote.username}: ${e.message}", "ERROR")
         }
+    }
+
+    private fun handleVote(playerName: String) {
+        val player =
+            Bukkit.getPlayer(playerName)?.takeIf { it.isOnline } ?: run {
+                log("Player not found or not online: $playerName", "WARNING")
+                return
+            }
+
+        config.getString("voting.message")?.mm()?.let { player.sendMessage(it) }
+        executeRewards(playerName, config.getStringList("voting.rewards"))
 
         val updatedVotes = currentVotes.incrementAndGet()
         Database.updateVoteCount(updatedVotes)
@@ -48,31 +50,28 @@ class VoteManager : Listener {
     }
 
     private fun triggerVoteParty() {
-        val votePartyMessage = config.getString("voteparty.message")?.mm() ?: return
-        val rewardType = config.getString("voteparty.rewardType", "individual")
+        val message = config.getString("voteparty.message")?.mm() ?: return
+        val rewards = config.getStringList("voteparty.rewards")
 
-        if (rewardType == "individual") {
-            Bukkit.getOnlinePlayers().forEach { player ->
-                player.sendMessage(votePartyMessage)
-                config.getStringList("voteparty.rewards").forEach { reward ->
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reward.replace("%player%", player.name))
+        when (config.getString("voteparty.rewardType", "individual")) {
+            "individual" ->
+                Bukkit.getOnlinePlayers().forEach { player ->
+                    player.sendMessage(message)
+                    executeRewards(player.name, rewards)
                 }
-            }
-        } else if (rewardType == "server-wide") {
-            Bukkit.broadcast(votePartyMessage)
-            config.getStringList("voteparty.rewards").forEach { reward ->
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reward)
+            "server-wide" -> {
+                Bukkit.broadcast(message)
+                rewards.forEach { Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it) }
             }
         }
     }
 
-    @EventHandler
-    fun onVote(event: VotifierEvent) {
-        val playerName = event.vote.username
-        try {
-            handleVote(playerName)
-        } catch (e: Exception) {
-            log("Error handling vote for player $playerName: ${e.message}", "ERROR")
+    private fun executeRewards(
+        playerName: String,
+        rewards: List<String>,
+    ) {
+        rewards.forEach { reward ->
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), reward.replace("%player%", playerName))
         }
     }
 }

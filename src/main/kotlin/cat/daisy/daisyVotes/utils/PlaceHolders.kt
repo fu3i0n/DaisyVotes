@@ -15,78 +15,6 @@ class PlaceHolders : PlaceholderExpansion() {
     private val placeholderCache = ConcurrentHashMap<String, CachedValue<String>>()
     private val globalCacheExpiry = TimeUnit.MINUTES.toMillis(1)
 
-    override fun getIdentifier(): String = "daisyvotes"
-
-    override fun getAuthor(): String = "Amari"
-
-    override fun getVersion(): String = "1.0"
-
-    override fun persist(): Boolean = true
-
-    override fun canRegister(): Boolean = true
-
-    fun disable() {
-        isEnabled = false
-        unregister()
-        placeholderCache.clear()
-    }
-
-    override fun onPlaceholderRequest(
-        player: Player?,
-        identifier: String,
-    ): String = onRequest(player, identifier)
-
-    override fun onRequest(
-        player: OfflinePlayer?,
-        identifier: String,
-    ): String {
-        if (!isEnabled || player == null || !DaisyVotes.instance.isEnabled) return ""
-
-        val cacheKey = "${player.uniqueId}:$identifier"
-        placeholderCache[cacheKey]?.let {
-            if (!it.isExpired()) {
-                return it.value
-            }
-        }
-
-        val totalVotesNeeded = config.getInt("voteparty.totalvotes")
-
-        return try {
-            when (identifier) {
-                "current_votes" -> {
-                    val votes = VoteManager.currentVotes.toString()
-                    placeholderCache[cacheKey] = CachedValue(votes, globalCacheExpiry)
-                    votes
-                }
-                "total_votes_needed" -> {
-                    placeholderCache[cacheKey] = CachedValue(totalVotesNeeded.toString(), globalCacheExpiry)
-                    totalVotesNeeded.toString()
-                }
-                else -> ""
-            }
-        } catch (e: Exception) {
-            DaisyVotes.instance.logger.warning("Error processing placeholder $identifier for ${player.name}: ${e.message}")
-            ""
-        }
-    }
-
-    fun clearCache(uuid: UUID) {
-        placeholderCache.keys.removeIf { it.startsWith("$uuid:") }
-    }
-
-    fun clearAllCaches() {
-        placeholderCache.clear()
-    }
-
-    private data class CachedValue<T>(
-        val value: T,
-        private val expiryTime: Long,
-    ) {
-        private val timestamp = System.currentTimeMillis()
-
-        fun isExpired(): Boolean = System.currentTimeMillis() - timestamp > expiryTime
-    }
-
     companion object {
         @Volatile
         private var instance: PlaceHolders? = null
@@ -100,5 +28,66 @@ class PlaceHolders : PlaceholderExpansion() {
             instance?.disable()
             instance = null
         }
+    }
+
+    override fun getIdentifier(): String = "daisyvotes"
+
+    override fun getAuthor(): String = "Daisy"
+
+    override fun getVersion(): String = "1.3"
+
+    override fun persist(): Boolean = true
+
+    override fun canRegister(): Boolean = true
+
+    override fun onPlaceholderRequest(
+        player: Player?,
+        identifier: String,
+    ): String = onRequest(player, identifier)
+
+    override fun onRequest(
+        player: OfflinePlayer?,
+        identifier: String,
+    ): String {
+        if (!isEnabled || player == null || !DaisyVotes.instance.isEnabled) return ""
+
+        val cacheKey = "${player.uniqueId}:$identifier"
+        placeholderCache[cacheKey]?.takeUnless { it.isExpired() }?.let { return it.value }
+
+        return runCatching {
+            val result =
+                when (identifier) {
+                    "current_votes" -> VoteManager.currentVotes.toString()
+                    "total_votes_needed" -> config.getInt("voteparty.totalvotes").toString()
+                    else -> return ""
+                }
+            placeholderCache[cacheKey] = CachedValue(result, globalCacheExpiry)
+            result
+        }.getOrElse { e ->
+            DaisyVotes.instance.logger.warning("Error processing placeholder $identifier for ${player.name}: ${e.message}")
+            ""
+        }
+    }
+
+    fun disable() {
+        isEnabled = false
+        unregister()
+        placeholderCache.clear()
+    }
+
+    fun clearCache(uuid: UUID) {
+        placeholderCache.keys.removeIf { it.startsWith("$uuid:") }
+    }
+
+    fun clearAllCaches() {
+        placeholderCache.clear()
+    }
+
+    private data class CachedValue<T>(
+        val value: T,
+        private val expiryTime: Long,
+        private val timestamp: Long = System.currentTimeMillis(),
+    ) {
+        fun isExpired(): Boolean = System.currentTimeMillis() - timestamp > expiryTime
     }
 }

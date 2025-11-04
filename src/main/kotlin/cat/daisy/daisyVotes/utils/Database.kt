@@ -18,8 +18,14 @@ object Database {
     private lateinit var dataSource: HikariDataSource
     private var connected = false
 
+    object VoteCountTable : Table("vote_count") {
+        val id = integer("id").autoIncrement()
+        val count = integer("count").default(0)
+        override val primaryKey = PrimaryKey(id)
+    }
+
     fun connect(pluginFolder: String): Boolean =
-        try {
+        runCatching {
             val dbFile =
                 File(pluginFolder, "database.db").apply {
                     if (!exists()) {
@@ -28,74 +34,43 @@ object Database {
                     }
                 }
 
-            val config =
-                HikariConfig().apply {
-                    driverClassName = "org.sqlite.JDBC"
-                    jdbcUrl = "jdbc:sqlite:${dbFile.absolutePath}"
-                    maximumPoolSize = 5
-                    minimumIdle = 2
-                    connectionTimeout = 10000
-                    idleTimeout = 300000
-                    maxLifetime = 600000
-                    addDataSourceProperty("journal_mode", "WAL")
-                    addDataSourceProperty("synchronous", "NORMAL")
-                    addDataSourceProperty("foreign_keys", "ON")
-                    poolName = "DaisyVotePluginPool"
-                    connectionTestQuery = "SELECT 1"
-                }
-
-            dataSource = HikariDataSource(config)
-            Database
-                .connect(dataSource)
+            dataSource = HikariDataSource(createHikariConfig(dbFile))
+            Database.connect(dataSource)
 
             transaction {
                 SchemaUtils.createMissingTablesAndColumns(VoteCountTable)
+                if (VoteCountTable.selectAll().empty()) {
+                    VoteCountTable.insert { it[count] = 0 }
+                }
             }
 
-            initializeVoteCount()
             connected = true
             log("Connected to SQLite database with HikariCP and Exposed", "SUCCESS")
             true
-        } catch (e: Exception) {
+        }.getOrElse { e ->
             log("Failed to connect to SQLite: ${e.message}", "ERROR", throwable = e)
             false
         }
 
     fun disconnect() {
-        if (::dataSource.isInitialized) {
-            try {
-                transaction {
-                    TransactionManager.currentOrNull()?.commit()
-                }
-                TransactionManager.currentOrNull()?.let {
-                    TransactionManager.closeAndUnregister(it.db)
-                }
-            } catch (e: Exception) {
-                DaisyVotes.instance.logger.warning("Error committing transaction before shutdown: ${e.message}")
-            } finally {
-                connected = false
-                dataSource.close()
+        if (!::dataSource.isInitialized) return
+
+        runCatching {
+            transaction {
+                TransactionManager.currentOrNull()?.commit()
             }
+            TransactionManager.currentOrNull()?.let {
+                TransactionManager.closeAndUnregister(it.db)
+            }
+        }.onFailure { e ->
+            DaisyVotes.instance.logger.warning("Error committing transaction before shutdown: ${e.message}")
         }
+
+        connected = false
+        dataSource.close()
     }
 
     suspend fun <T> dbQuery(block: () -> T): T = transaction { block() }
-
-    object VoteCountTable : Table("vote_count") {
-        val id = integer("id").autoIncrement()
-        val count = integer("count").default(0)
-        override val primaryKey = PrimaryKey(id)
-    }
-
-    private fun initializeVoteCount() {
-        transaction {
-            if (VoteCountTable.selectAll().empty()) {
-                VoteCountTable.insert {
-                    it[count] = 0
-                }
-            }
-        }
-    }
 
     fun getVoteCount(): Int =
         transaction {
@@ -104,12 +79,27 @@ object Database {
 
     fun updateVoteCount(newCount: Int) {
         transaction {
-            val existingRow = VoteCountTable.selectAll().firstOrNull()
-            if (existingRow != null) {
+            if (VoteCountTable.selectAll().firstOrNull() != null) {
                 VoteCountTable.update { it[count] = newCount }
             } else {
                 VoteCountTable.insert { it[count] = newCount }
             }
         }
     }
+
+    private fun createHikariConfig(dbFile: File) =
+        HikariConfig().apply {
+            driverClassName = "org.sqlite.JDBC"
+            jdbcUrl = "jdbc:sqlite:${dbFile.absolutePath}"
+            maximumPoolSize = 5
+            minimumIdle = 2
+            connectionTimeout = 10000
+            idleTimeout = 300000
+            maxLifetime = 600000
+            addDataSourceProperty("journal_mode", "WAL")
+            addDataSourceProperty("synchronous", "NORMAL")
+            addDataSourceProperty("foreign_keys", "ON")
+            poolName = "DaisyVotePluginPool"
+            connectionTestQuery = "SELECT 1"
+        }
 }

@@ -31,6 +31,7 @@ val versions =
         "sqlite" to "3.50.3.0",
         "exposed" to "0.61.0",
         "votifer" to "2.7.2",
+        "command" to "10.1.2",
     )
 
 dependencies {
@@ -40,10 +41,11 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions["kotlin"]}")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions["kotlinCoroutines"]}")
 
-    implementation("org.jetbrains.exposed:exposed-core:${versions["exposed"]}")
-    implementation("org.jetbrains.exposed:exposed-dao:${versions["exposed"]}")
-    implementation("org.jetbrains.exposed:exposed-jdbc:${versions["exposed"]}")
-    implementation("org.jetbrains.exposed:exposed-java-time:${versions["exposed"]}")
+    implementation("dev.jorel:commandapi-bukkit-shade:${versions["command"]}")
+    implementation("dev.jorel:commandapi-bukkit-kotlin:${versions["command"]}")
+
+    compileOnly("org.jetbrains.exposed:exposed-core:${versions["exposed"]}")
+    compileOnly("org.jetbrains.exposed:exposed-jdbc:${versions["exposed"]}")
 
     // Database dependencies - these will be downloaded by the server via plugin.yml
     compileOnly("com.zaxxer:HikariCP:${versions["hikariCP"]}") {
@@ -155,10 +157,15 @@ tasks {
     register("printJarSize") {
         dependsOn("shadowJar")
         doLast {
-            val libsDir = layout.buildDirectory.dir("libs").get().asFile
-            val jarFiles = libsDir.listFiles { file ->
-                file.name.endsWith("-shaded.jar")
-            }
+            val libsDir =
+                layout.buildDirectory
+                    .dir("libs")
+                    .get()
+                    .asFile
+            val jarFiles =
+                libsDir.listFiles { file ->
+                    file.name.endsWith("-shaded.jar")
+                }
 
             if (jarFiles != null && jarFiles.isNotEmpty()) {
                 val jarFile = jarFiles.first()

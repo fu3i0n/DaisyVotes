@@ -8,7 +8,6 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
-import java.io.IOException
 
 object ConfigManager {
     private val configCache = mutableMapOf<String, FileConfiguration>()
@@ -31,35 +30,24 @@ object ConfigManager {
     }
 
     fun reloadConfigs(executor: Player? = null) {
-        try {
+        runCatching {
             DaisyVotes.instance.reloadConfig()
             loadConfigs()
             executor?.sendMessage("&aAll configs reloaded.".mm())
             DaisyVotes.instance.logger.info("All configs reloaded successfully.")
-        } catch (e: Exception) {
+        }.onFailure { e ->
             executor?.sendMessage("&cFailed to reload configs: ${e.message}".mm())
             DaisyVotes.instance.logger.severe("Failed to reload configs: ${e.message}")
             throw e
         }
     }
 
-    private fun saveConfig(
-        config: FileConfiguration,
-        file: File,
-    ) {
-        try {
-            config.save(file)
-        } catch (e: IOException) {
-            DaisyVotes.instance.logger.severe("Failed to save config ${file.name}: ${e.message}")
+    fun saveMainConfig() {
+        runCatching {
+            mainConfig.save(DaisyVotes.mainConfigFile)
+        }.onFailure { e ->
+            DaisyVotes.instance.logger.severe("Failed to save config ${DaisyVotes.mainConfigFile.name}: ${e.message}")
             e.printStackTrace()
         }
-    }
-
-    fun saveMainConfig() {
-        saveConfig(mainConfig, DaisyVotes.mainConfigFile)
-    }
-
-    fun saveAllConfigs() {
-        saveMainConfig()
     }
 }

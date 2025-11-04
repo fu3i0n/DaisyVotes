@@ -10,6 +10,37 @@ import java.time.format.DateTimeFormatter
 object TextUtils {
     private val mm = MiniMessage.miniMessage()
     private val logFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    private val legacyColorRegex = """&([0-9a-fk-or])""".toRegex()
+
+    private val legacyColorMap =
+        mapOf(
+            "0" to "color:black",
+            "1" to "color:dark_blue",
+            "2" to "color:dark_green",
+            "3" to "color:dark_aqua",
+            "4" to "color:dark_red",
+            "5" to "color:dark_purple",
+            "6" to "color:gold",
+            "7" to "color:gray",
+            "8" to "color:dark_gray",
+            "9" to "color:blue",
+            "a" to "color:green",
+            "b" to "color:aqua",
+            "c" to "color:red",
+            "d" to "color:light_purple",
+            "e" to "color:yellow",
+            "f" to "color:white",
+        )
+
+    private val legacyFormattingMap =
+        mapOf(
+            "k" to "format:obf",
+            "l" to "format:bold",
+            "m" to "format:strikethrough",
+            "n" to "format:underline",
+            "o" to "format:italic",
+            "r" to "reset",
+        )
 
     object Colors {
         const val PRIMARY = "#3498db"
@@ -51,9 +82,7 @@ object TextUtils {
 
         val detailedMessage =
             buildString {
-                append("[$timestamp] ")
-                append("[$level] ")
-                append(message)
+                append("[$timestamp] [$level] $message")
                 additionalContext.forEach { (key, value) -> append(" | $key: $value") }
             }
 
@@ -78,38 +107,6 @@ object TextUtils {
                 else -> "<$miniMessageColor>"
             }
         }
-
-    private val legacyColorMap =
-        mapOf(
-            "0" to "color:black",
-            "1" to "color:dark_blue",
-            "2" to "color:dark_green",
-            "3" to "color:dark_aqua",
-            "4" to "color:dark_red",
-            "5" to "color:dark_purple",
-            "6" to "color:gold",
-            "7" to "color:gray",
-            "8" to "color:dark_gray",
-            "9" to "color:blue",
-            "a" to "color:green",
-            "b" to "color:aqua",
-            "c" to "color:red",
-            "d" to "color:light_purple",
-            "e" to "color:yellow",
-            "f" to "color:white",
-        )
-
-    private val legacyFormattingMap =
-        mapOf(
-            "k" to "format:obf",
-            "l" to "format:bold",
-            "m" to "format:strikethrough",
-            "n" to "format:underline",
-            "o" to "format:italic",
-            "r" to "reset",
-        )
-
-    private val legacyColorRegex = """&([0-9a-fk-or])""".toRegex()
 
     fun String.convertNewColors(): String = replace(legacyColorRegex) { match -> "§" + match.groupValues[1] }
 
