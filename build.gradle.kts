@@ -26,7 +26,7 @@ val versions =
         "kotlin" to "2.2.21", // 🔹 renamed to match usage
         "placeholderApi" to "2.11.7",
         "kotlinCoroutines" to "1.10.2",
-        "ktlint" to "1.7.1",
+        "ktlint" to "1.8.0",
         "hikariCP" to "7.0.2",
         "sqlite" to "3.50.3.0",
         "exposed" to "0.61.0",
