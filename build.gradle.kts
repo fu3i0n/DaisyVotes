@@ -22,7 +22,7 @@ repositories {
 
 val versions =
     mapOf(
-        "paperApi" to "1.21.4-R0.1-SNAPSHOT",
+        "paperApi" to "1.21.8-R0.1-SNAPSHOT",
         "kotlin" to "2.2.21", // 🔹 renamed to match usage
         "placeholderApi" to "2.11.7",
         "kotlinCoroutines" to "1.10.2",
@@ -77,7 +77,6 @@ kotlin {
     sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
 }
 
-// ✅ New compilerOptions DSL
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     compilerOptions {
         freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")

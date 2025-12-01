@@ -19,7 +19,7 @@ object Database {
     private var connected = false
 
     object VoteCountTable : Table("vote_count") {
-        val id = integer("id").autoIncrement()
+        val id = integer("id").default(1)  // Always 1 for single row
         val count = integer("count").default(0)
         override val primaryKey = PrimaryKey(id)
     }
@@ -38,9 +38,12 @@ object Database {
             Database.connect(dataSource)
 
             transaction {
-                SchemaUtils.createMissingTablesAndColumns(VoteCountTable)
+                SchemaUtils.create(VoteCountTable)
                 if (VoteCountTable.selectAll().empty()) {
-                    VoteCountTable.insert { it[count] = 0 }
+                    VoteCountTable.insert {
+                        it[id] = 1
+                        it[count] = 0
+                    }
                 }
             }
 
@@ -79,10 +82,8 @@ object Database {
 
     fun updateVoteCount(newCount: Int) {
         transaction {
-            if (VoteCountTable.selectAll().firstOrNull() != null) {
-                VoteCountTable.update { it[count] = newCount }
-            } else {
-                VoteCountTable.insert { it[count] = newCount }
+            VoteCountTable.update({ VoteCountTable.id eq 1 }) {
+                it[count] = newCount
             }
         }
     }
