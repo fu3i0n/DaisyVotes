@@ -36,63 +36,58 @@ cd DaisyVotes
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
-DaisyVotes offers an easy-to-use configuration file to customize your voting system. Example:
+Edit `plugins/DaisyVotes/config.yml`:
 
 ```yaml
-# Configuration for individual voting rewards
+# Individual Voting Rewards
 voting:
-  # Message sent to the player when they vote
   message: "<#1aff1a>Thank you for voting! <#ff1a1a>Here are your rewards."
-
-  # List of commands executed when a player votes
-  # %player% is replaced with the player's name
   rewards:
-    - "crate key give %player% vote 1" # Gives the player 1 vote crate key
+    - "give %player% diamond 5"
+    - "eco give %player% 1000"
+    - "crate key give %player% vote 1"
 
-# Configuration for vote party rewards
+# Vote Party System
 voteparty:
-  # Message broadcasted to all players when a vote party is triggered
-  message: "<#1aff1a>Vote party! <#ff1a1a>Everyone gets a reward."
-
-  # Number of votes required to trigger a vote party
+  message: "<gradient:#1aff1a:#ff1a1a>🎉 Vote Party! Everyone gets rewards!</gradient>"
   totalvotes: 25
-
-  # Determines how rewards are distributed:
-  # "individual" - Rewards are given to each player individually
-  # "server-wide" - Rewards are given to the entire server
+  # "individual" = each online player gets rewards
+  # "server-wide" = commands run once for entire server
   rewardType: "individual"
-
-  # List of commands executed during a vote party
-  # %player% is replaced with the player's name (only for "individual" rewardType)
   rewards:
-    - "crate key give %player% vote 1" # Gives each player 1 vote crate key
+    - "give %player% diamond 10"
+    - "eco give %player% 5000"
+    - "crate key give %player% vote 3"
 ```
 
----
+## Placeholders
 
-## 🌍 Why DaisyVotes?
+Requires [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/)
 
-DaisyVotes is designed to empower developers and organizations with a reliable, open-source voting system. Whether you're building a small poll, a vote party system, or a large-scale election, DaisyVotes has you covered.
+- `%daisyvotes_current_votes%` - Current vote count
+- `%daisyvotes_total_votes_needed%` - Votes needed for party
+- `%daisyvotes_votes_remaining%` - Votes remaining until party
 
----
+## Commands
 
-## 🤝 Contributions
+- `/daisyvotes reload` - Reload configuration (permission: `daisyvotes.reload`)
 
-We believe in the power of community! Contributions are welcome—whether it's reporting issues, submitting pull requests, or suggesting new features. Together, we can make DaisyVotes even better.
+## Building
 
----
+```bash
+git clone https://github.com/fu3i0n/DaisyVotes.git
+cd DaisyVotes
+./gradlew build
+```
 
-## 📜 License
+## Dependencies
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+- Paper 1.21+ or Spigot 1.21+
+- Votifier (required)
+- PlaceholderAPI (optional)
 
----
+## License
 
-## 🔗 Links
-
-- **Repository**: [DaisyVotes on GitHub](https://github.com/fu3i0n/DaisyVotes)
-- **Issues**: [Report Issues](https://github.com/fu3i0n/DaisyVotes/issues)
-
-Thank you for your support! 🎉
+MIT License - see [LICENSE](LICENSE) file

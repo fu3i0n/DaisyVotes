@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cat.daisy"
-version = "1.3"
+version = "1.4"
 
 repositories {
     mavenCentral()
@@ -17,13 +17,12 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/")
     maven("https://jitpack.io")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven("https://repo.codemc.io/repository/maven-releases/")
 }
 
 val versions =
     mapOf(
-        "paperApi" to "1.21.8-R0.1-SNAPSHOT",
-        "kotlin" to "2.2.21", // 🔹 renamed to match usage
+        "paperApi" to "1.21.10-R0.1-SNAPSHOT",
+        "kotlin" to "2.2.21",
         "placeholderApi" to "2.11.7",
         "kotlinCoroutines" to "1.10.2",
         "ktlint" to "1.8.0",
@@ -31,7 +30,6 @@ val versions =
         "sqlite" to "3.51.1.0",
         "exposed" to "0.61.0",
         "votifer" to "2.7.2",
-        "command" to "10.1.2",
     )
 
 dependencies {
@@ -41,8 +39,8 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions["kotlin"]}")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions["kotlinCoroutines"]}")
 
-    implementation("dev.jorel:commandapi-bukkit-shade:${versions["command"]}")
-    implementation("dev.jorel:commandapi-bukkit-kotlin:${versions["command"]}")
+    // DaisyCommand library
+    implementation("com.github.fu3i0n:DaisyCommand:1.0")
 
     compileOnly("org.jetbrains.exposed:exposed-core:${versions["exposed"]}")
     compileOnly("org.jetbrains.exposed:exposed-jdbc:${versions["exposed"]}")
@@ -121,6 +119,7 @@ tasks {
         archiveClassifier.set("shaded")
 
         minimize {
+            exclude(dependency("net.j4c0b3y.CommandAPI:.*"))
             exclude(dependency("org.jetbrains.exposed:.*:.*"))
             exclude(dependency("org.jetbrains.kotlin:.*:.*"))
             exclude(dependency("org.jetbrains.kotlinx:.*:.*"))
@@ -143,28 +142,15 @@ tasks {
         exclude("**/*.kotlin_builtins")
 
         mergeServiceFiles()
-
-        manifest {
-            attributes(
-                "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version,
-                "Built-By" to System.getProperty("user.name"),
-            )
-        }
     }
 
     register("printJarSize") {
         dependsOn("shadowJar")
         doLast {
-            val libsDir =
-                layout.buildDirectory
-                    .dir("libs")
-                    .get()
-                    .asFile
-            val jarFiles =
-                libsDir.listFiles { file ->
-                    file.name.endsWith("-shaded.jar")
-                }
+            val libsDir = layout.buildDirectory.dir("libs").get().asFile
+            val jarFiles = libsDir.listFiles { file ->
+                file.name.endsWith("-shaded.jar")
+            }
 
             if (jarFiles != null && jarFiles.isNotEmpty()) {
                 val jarFile = jarFiles.first()

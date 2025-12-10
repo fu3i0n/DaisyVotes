@@ -1,15 +1,37 @@
-# Individual voting rewards
+# ================================================
+#            DaisyVotes Configuration
+# ================================================
+
+# Individual Voting Rewards
+# Triggered when a player votes for your server
 voting:
+  # Message sent to the player (supports MiniMessage format)
   message: "<#1aff1a>Thank you for voting! <#ff1a1a>Here are your rewards."
-  # %player% is replaced with the player's name
+
+  # Commands to execute (%player% = player's username)
   rewards:
+    - "give %player% diamond 5"
+    - "eco give %player% 1000"
     - "crate key give %player% vote 1"
 
-# Vote party rewards
+# ================================================
+
+# Vote Party System
+# Triggered when the server reaches the vote threshold
 voteparty:
-  message: "<#1aff1a>Vote party! <#ff1a1a>Everyone gets a reward."
+  # Broadcast message when vote party triggers
+  message: "<gradient:#1aff1a:#ff1a1a>🎉 Vote Party! Everyone gets rewards!</gradient>"
+
+  # Votes required to trigger the party
   totalvotes: 25
-  # "individual" - rewards given to each player | "server-wide" - rewards given to entire server
+
+  # Reward distribution type:
+  #   "individual"  - Each online player gets rewards
+  #   "server-wide" - Commands run once for the entire server
   rewardType: "individual"
+
+  # Commands to execute (%player% only works with "individual" mode)
   rewards:
-    - "crate key give %player% vote 1"
+    - "give %player% diamond 10"
+    - "eco give %player% 5000"
+    - "crate key give %player% vote 3"

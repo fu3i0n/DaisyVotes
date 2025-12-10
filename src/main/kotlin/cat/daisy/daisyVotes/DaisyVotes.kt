@@ -1,13 +1,12 @@
 package cat.daisy.daisyVotes
 
+import cat.daisy.command.core.DaisyCommands
 import cat.daisy.daisyVotes.commands.registerReloadCommand
 import cat.daisy.daisyVotes.managers.ConfigManager
 import cat.daisy.daisyVotes.managers.VoteManager
 import cat.daisy.daisyVotes.utils.Database
 import cat.daisy.daisyVotes.utils.PlaceHolders
 import cat.daisy.daisyVotes.utils.TextUtils.log
-import dev.jorel.commandapi.CommandAPI
-import dev.jorel.commandapi.CommandAPIBukkitConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -19,7 +18,7 @@ import java.io.File
 class DaisyVotes : JavaPlugin() {
     private var isShuttingDown = false
     private val pluginScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val listeners = listOf({ VoteManager() })
+    private val listeners = listOf { VoteManager() }
 
     companion object {
         lateinit var instance: DaisyVotes
@@ -29,15 +28,14 @@ class DaisyVotes : JavaPlugin() {
             private set
     }
 
-    override fun onLoad() {
-        CommandAPI.onLoad(CommandAPIBukkitConfig(this).silentLogs(true))
-    }
 
     override fun onEnable() {
         instance = this
         val startTime = System.currentTimeMillis()
 
-        CommandAPI.onEnable()
+        // Initialize DaisyCommand framework
+        DaisyCommands.initialize(this)
+
         registerReloadCommand()
 
         if (Database.connect(dataFolder.absolutePath)) {
@@ -58,10 +56,10 @@ class DaisyVotes : JavaPlugin() {
         if (isShuttingDown) return
         isShuttingDown = true
 
-        pluginScope.cancel("Plugin shutting down")
-        CommandAPI.onDisable()
+        DaisyCommands.shutdown()
         PlaceHolders.cleanup()
         Database.disconnect()
+        pluginScope.cancel()
 
         log("DaisyVotes plugin disabled.", "INFO")
     }
@@ -99,6 +97,4 @@ class DaisyVotes : JavaPlugin() {
             log("Warning: Missing recommended dependencies: PlaceholderAPI", "WARNING")
         }
     }
-
-    fun getPluginScope(): CoroutineScope = pluginScope
 }

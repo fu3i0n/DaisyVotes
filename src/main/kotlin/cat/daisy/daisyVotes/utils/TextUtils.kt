@@ -111,6 +111,4 @@ object TextUtils {
     fun String.convertNewColors(): String = replace(legacyColorRegex) { match -> "§" + match.groupValues[1] }
 
     fun String.gradient(vararg colors: String): Component = "<gradient:${colors.joinToString(":")}>$this</gradient>".mm()
-
-    private fun String.escape(): String = replace("'", "\\'")
 }

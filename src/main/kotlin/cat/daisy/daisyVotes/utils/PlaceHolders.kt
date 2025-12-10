@@ -34,7 +34,7 @@ class PlaceHolders : PlaceholderExpansion() {
 
     override fun getAuthor(): String = "Daisy"
 
-    override fun getVersion(): String = "1.3"
+    override fun getVersion(): String = "1.4"
 
     override fun persist(): Boolean = true
 
@@ -52,19 +52,37 @@ class PlaceHolders : PlaceholderExpansion() {
         if (!isEnabled || player == null || !DaisyVotes.instance.isEnabled) return ""
 
         val cacheKey = "${player.uniqueId}:$identifier"
-        placeholderCache[cacheKey]?.takeUnless { it.isExpired() }?.let { return it.value }
+
+        // Check cache first
+        placeholderCache[cacheKey]?.let { cached ->
+            if (!cached.isExpired()) return cached.value
+            placeholderCache.remove(cacheKey) // Clean up expired entry
+        }
 
         return runCatching {
             val result =
                 when (identifier) {
-                    "current_votes" -> VoteManager.currentVotes.toString()
-                    "total_votes_needed" -> config.getInt("voteparty.totalvotes").toString()
-                    else -> return ""
+                    "current_votes" -> {
+                        VoteManager.currentVotes.get().toString()
+                    }
+
+                    "total_votes_needed" -> {
+                        config.getInt("voteparty.totalvotes", 25).toString()
+                    }
+
+                    "votes_remaining" -> {
+                        val remaining = config.getInt("voteparty.totalvotes", 25) - VoteManager.currentVotes.get()
+                        remaining.coerceAtLeast(0).toString()
+                    }
+
+                    else -> {
+                        return ""
+                    }
                 }
             placeholderCache[cacheKey] = CachedValue(result, globalCacheExpiry)
             result
         }.getOrElse { e ->
-            DaisyVotes.instance.logger.warning("Error processing placeholder $identifier for ${player.name}: ${e.message}")
+            DaisyVotes.instance.logger.warning("Error processing placeholder '$identifier' for ${player.name}: ${e.message}")
             ""
         }
     }

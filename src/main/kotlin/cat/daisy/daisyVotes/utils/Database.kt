@@ -19,7 +19,7 @@ object Database {
     private var connected = false
 
     object VoteCountTable : Table("vote_count") {
-        val id = integer("id").default(1)  // Always 1 for single row
+        val id = integer("id").default(1) // Always 1 for single row
         val count = integer("count").default(0)
         override val primaryKey = PrimaryKey(id)
     }
@@ -56,35 +56,42 @@ object Database {
         }
 
     fun disconnect() {
-        if (!::dataSource.isInitialized) return
+        if (!::dataSource.isInitialized || !connected) return
 
         runCatching {
-            transaction {
-                TransactionManager.currentOrNull()?.commit()
+            TransactionManager.currentOrNull()?.let { tm ->
+                transaction {
+                    tm.commit()
+                }
+                TransactionManager.closeAndUnregister(tm.db)
             }
-            TransactionManager.currentOrNull()?.let {
-                TransactionManager.closeAndUnregister(it.db)
-            }
+            dataSource.close()
+            connected = false
+            log("Disconnected from database successfully", "INFO")
         }.onFailure { e ->
-            DaisyVotes.instance.logger.warning("Error committing transaction before shutdown: ${e.message}")
+            log("Error during database shutdown: ${e.message}", "WARNING")
         }
-
-        connected = false
-        dataSource.close()
     }
 
-    suspend fun <T> dbQuery(block: () -> T): T = transaction { block() }
-
     fun getVoteCount(): Int =
-        transaction {
-            VoteCountTable.selectAll().firstOrNull()?.get(VoteCountTable.count) ?: 0
+        runCatching {
+            transaction {
+                VoteCountTable.selectAll().firstOrNull()?.get(VoteCountTable.count) ?: 0
+            }
+        }.getOrElse { e ->
+            log("Failed to get vote count: ${e.message}", "ERROR")
+            0
         }
 
     fun updateVoteCount(newCount: Int) {
-        transaction {
-            VoteCountTable.update({ VoteCountTable.id eq 1 }) {
-                it[count] = newCount
+        runCatching {
+            transaction {
+                VoteCountTable.update({ VoteCountTable.id eq 1 }) {
+                    it[count] = newCount.coerceAtLeast(0)
+                }
             }
+        }.onFailure { e ->
+            log("Failed to update vote count to $newCount: ${e.message}", "ERROR", throwable = e)
         }
     }
 

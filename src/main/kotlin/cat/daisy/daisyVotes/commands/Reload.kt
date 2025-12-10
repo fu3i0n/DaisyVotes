@@ -1,17 +1,27 @@
 package cat.daisy.daisyVotes.commands
 
+import cat.daisy.command.dsl.daisyCommand
 import cat.daisy.daisyVotes.managers.ConfigManager
-import dev.jorel.commandapi.kotlindsl.anyExecutor
-import dev.jorel.commandapi.kotlindsl.commandAPICommand
-import dev.jorel.commandapi.kotlindsl.subcommand
 
 fun registerReloadCommand() {
-    commandAPICommand("daisyvotes") {
+    daisyCommand("daisyvotes") {
+        description = "DaisyVotes main command"
+        permission = "daisyvotes.use"
+        withAliases("dv")
+
         subcommand("reload") {
-            withPermission("daisyvotes.reload")
-            anyExecutor { sender, _ ->
-                ConfigManager.reloadConfigs()
+            description = "Reload configuration"
+            permission = "daisyvotes.reload"
+
+            onExecute {
+                ConfigManager.reloadConfigs(player)
+                success("Configuration reloaded!")
             }
+        }
+
+        onExecute {
+            info("DaisyVotes Commands:")
+            send("<gray>▸ <white>/daisyvotes reload <dark_gray>- Reload configuration")
         }
     }
 }

@@ -33,12 +33,14 @@ object ConfigManager {
         runCatching {
             DaisyVotes.instance.reloadConfig()
             loadConfigs()
-            executor?.sendMessage("&aAll configs reloaded.".mm())
+            val successMessage = "<green>✔ All configs reloaded successfully.".mm()
+            executor?.sendMessage(successMessage)
             DaisyVotes.instance.logger.info("All configs reloaded successfully.")
         }.onFailure { e ->
-            executor?.sendMessage("&cFailed to reload configs: ${e.message}".mm())
+            val errorMessage = "<red>✖ Failed to reload configs: ${e.message}".mm()
+            executor?.sendMessage(errorMessage)
             DaisyVotes.instance.logger.severe("Failed to reload configs: ${e.message}")
-            throw e
+            e.printStackTrace()
         }
     }
 
