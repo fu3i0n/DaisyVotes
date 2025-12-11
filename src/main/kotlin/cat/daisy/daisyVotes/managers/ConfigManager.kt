@@ -2,54 +2,129 @@ package cat.daisy.daisyVotes.managers
 
 import cat.daisy.daisyVotes.DaisyVotes
 import cat.daisy.daisyVotes.DaisyVotes.Companion.mainConfig
+import cat.daisy.daisyVotes.utils.TextUtils.log
 import cat.daisy.daisyVotes.utils.TextUtils.mm
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Centralized configuration management for DaisyVotes.
+ * Handles loading, caching, reloading, and saving of all config files.
+ */
 object ConfigManager {
-    private val configCache = mutableMapOf<String, FileConfiguration>()
+    private val configCache = ConcurrentHashMap<String, CachedConfig>()
 
+    /** GUI configuration - loaded from gui.yml */
+    lateinit var guiConfig: FileConfiguration
+        private set
+
+    private val plugin: DaisyVotes
+        get() = DaisyVotes.instance
+
+    /**
+     * Loads a configuration file, using cache if available and not stale.
+     */
     fun loadConfig(
-        plugin: JavaPlugin,
         fileName: String,
-    ): FileConfiguration =
-        configCache.getOrPut(fileName) {
-            val file = File(plugin.dataFolder, fileName)
-            if (!file.exists()) {
-                plugin.saveResource(fileName, false)
+        forceReload: Boolean = false,
+    ): FileConfiguration {
+        if (!forceReload) {
+            configCache[fileName]?.let { cached ->
+                if (!cached.isStale()) return cached.config
             }
-            YamlConfiguration.loadConfiguration(file)
         }
 
+        val file = File(plugin.dataFolder, fileName)
+
+        // Save default resource if file doesn't exist
+        if (!file.exists()) {
+            runCatching {
+                plugin.saveResource(fileName, false)
+            }.onFailure { e ->
+                log("Failed to save default resource '$fileName': ${e.message}", "WARNING")
+            }
+        }
+
+        val config = YamlConfiguration.loadConfiguration(file)
+        configCache[fileName] = CachedConfig(config, file)
+
+        return config
+    }
+
+    /**
+     * Loads all configuration files required by the plugin.
+     */
     fun loadConfigs() {
         configCache.clear()
-        mainConfig = loadConfig(DaisyVotes.instance, "config.yml")
+        mainConfig = loadConfig("config.yml")
+        guiConfig = loadConfig("gui.yml")
+        log("All configurations loaded successfully", "SUCCESS")
     }
 
+    /**
+     * Reloads all configurations and notifies the executor.
+     */
     fun reloadConfigs(executor: Player? = null) {
         runCatching {
-            DaisyVotes.instance.reloadConfig()
             loadConfigs()
-            val successMessage = "<green>✔ All configs reloaded successfully.".mm()
-            executor?.sendMessage(successMessage)
-            DaisyVotes.instance.logger.info("All configs reloaded successfully.")
+
+            executor?.sendMessage("<green>✔ All configs reloaded successfully.".mm())
+            log("Configurations reloaded by ${executor?.name ?: "Console"}", "SUCCESS")
         }.onFailure { e ->
-            val errorMessage = "<red>✖ Failed to reload configs: ${e.message}".mm()
-            executor?.sendMessage(errorMessage)
-            DaisyVotes.instance.logger.severe("Failed to reload configs: ${e.message}")
-            e.printStackTrace()
+            val errorMsg = "Failed to reload configs: ${e.message}"
+            executor?.sendMessage("<red>✖ $errorMsg".mm())
+            log(errorMsg, "ERROR", throwable = e)
         }
     }
 
+    /**
+     * Saves the main configuration file.
+     */
+    @Suppress("unused") // Public API
     fun saveMainConfig() {
+        saveConfig("config.yml", mainConfig)
+    }
+
+    /**
+     * Saves a configuration to its file.
+     */
+    fun saveConfig(
+        fileName: String,
+        config: FileConfiguration,
+    ) {
         runCatching {
-            mainConfig.save(DaisyVotes.mainConfigFile)
+            val file = File(plugin.dataFolder, fileName)
+            config.save(file)
         }.onFailure { e ->
-            DaisyVotes.instance.logger.severe("Failed to save config ${DaisyVotes.mainConfigFile.name}: ${e.message}")
-            e.printStackTrace()
+            log("Failed to save config '$fileName': ${e.message}", "ERROR", throwable = e)
         }
+    }
+
+    /**
+     * Gets a cached config file, or null if not loaded.
+     */
+    @Suppress("unused") // Public API
+    fun getConfig(fileName: String): FileConfiguration? = configCache[fileName]?.config
+
+    /**
+     * Clears the config cache (useful for testing or forced reload).
+     */
+    @Suppress("unused") // Public API
+    fun clearCache() {
+        configCache.clear()
+    }
+
+    /**
+     * Wrapper for cached configuration with staleness detection.
+     */
+    private data class CachedConfig(
+        val config: FileConfiguration,
+        val file: File,
+        val loadedAt: Long = System.currentTimeMillis(),
+    ) {
+        fun isStale(): Boolean = file.lastModified() > loadedAt
     }
 }

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "cat.daisy"
-version = "1.4"
+version = "1.5"
 
 repositories {
     mavenCentral()
@@ -41,6 +41,7 @@ dependencies {
 
     // DaisyCommand library
     implementation("com.github.fu3i0n:DaisyCommand:1.0")
+    implementation("com.github.fu3i0n:DaisyMenu:1.1")
 
     compileOnly("org.jetbrains.exposed:exposed-core:${versions["exposed"]}")
     compileOnly("org.jetbrains.exposed:exposed-jdbc:${versions["exposed"]}")
@@ -146,11 +147,13 @@ tasks {
 
     register("printJarSize") {
         dependsOn("shadowJar")
+        val libsDir = layout.buildDirectory.dir("libs")
         doLast {
-            val libsDir = layout.buildDirectory.dir("libs").get().asFile
-            val jarFiles = libsDir.listFiles { file ->
-                file.name.endsWith("-shaded.jar")
-            }
+            val libsDirFile = libsDir.get().asFile
+            val jarFiles =
+                libsDirFile.listFiles { file ->
+                    file.name.endsWith("-shaded.jar")
+                }
 
             if (jarFiles != null && jarFiles.isNotEmpty()) {
                 val jarFile = jarFiles.first()
@@ -158,7 +161,7 @@ tasks {
                 println("Final JAR size: ${String.format("%.2f", sizeInMB)} MB")
                 println("JAR location: ${jarFile.absolutePath}")
             } else {
-                println("No shaded JAR files found in ${libsDir.absolutePath}")
+                println("No shaded JAR files found in ${libsDirFile.absolutePath}")
             }
         }
     }

@@ -1,5 +1,5 @@
 name: DaisyVotes
-version: '1.4'
+version: '1.5'
 main: cat.daisy.daisyVotes.DaisyVotes
 api-version: '1.21'
 authors: [Daisy]

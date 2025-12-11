@@ -1,0 +1,107 @@
+# ================================================
+#            DaisyVotes GUI Configuration
+# ================================================
+# All text fields support MiniMessage format
+# Hex colors: <#RRGGBB>Text</hex>
+# Gradients: <gradient:#color1:#color2>Text</gradient>
+# ================================================
+
+vote-menu:
+  # Menu title (supports MiniMessage)
+  title: "<#FF4C4C><bold>🗳 Vote Menu"
+
+  # Menu size in rows (1-6)
+  rows: 3
+
+  # Background filler item
+  background:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    name: " "
+
+  # Info button - displays vote statistics
+  info:
+    enabled: true
+    slot: 4
+    material: BOOK
+    name: "<#F5C842><bold>ℹ Vote Info"
+    lore:
+      - "<#E5E5E5>Total Votes Needed: <#A3E4A1>%daisyvotes_total_votes_needed%"
+      - "<#E5E5E5>Current Votes: <#A3E4A1>%daisyvotes_current_votes%"
+      - "<#E5E5E5>Votes Remaining: <#A3E4A1>%daisyvotes_votes_remaining%"
+      - " "
+      - "<#F5C842>Vote to earn rewards and trigger a vote party!"
+
+  # Exit button
+  exit:
+    enabled: true
+    slot: 22
+    material: BARRIER
+    name: "<#FF6B6B><bold>❌ Exit"
+    lore:
+      - "<#E5E5E5>Close the vote menu"
+      - " "
+      - "<#FF6B6B>Click to exit!"
+
+  # Message format when player clicks a vote site
+  # %url% - The vote site URL
+  link-message: "<gradient:#FF4C4C:#FF1A1A>🔗 Vote Now: <hover:show_text:'<gradient:#FF4C4C:#FF1A1A>Click to vote!'><click:open_url:'%url%'><gradient:#BFA6FF:#A1D8F5>%url%</gradient></click></hover></gradient>"
+
+  # Vote sites configuration
+  # You can add, remove, or modify sites as needed
+  vote-sites:
+    site1:
+      slot: 11
+      material: LIGHT_BLUE_CANDLE
+      name: "<#A1D8F5><bold>🗳 Vote Site #1"
+      lore:
+        - "<#E5E5E5>Vote on our first voting site"
+        - "<#E5E5E5>for rewards!"
+        - " "
+        - "<#A1D8F5>Click to get the link!"
+      link: "https://example.com/vote1"
+
+    site2:
+      slot: 12
+      material: RED_CANDLE
+      name: "<#FF4C4C><bold>🗳 Vote Site #2"
+      lore:
+        - "<#E5E5E5>Vote on our second voting site"
+        - "<#E5E5E5>for rewards!"
+        - " "
+        - "<#FF4C4C>Click to get the link!"
+      link: "https://example.com/vote2"
+
+    site3:
+      slot: 13
+      material: LIME_CANDLE
+      name: "<#A3E4A1><bold>🗳 Vote Site #3"
+      lore:
+        - "<#E5E5E5>Vote on our third voting site"
+        - "<#E5E5E5>for rewards!"
+        - " "
+        - "<#A3E4A1>Click to get the link!"
+      link: "https://example.com/vote3"
+
+    site4:
+      slot: 14
+      material: PURPLE_CANDLE
+      name: "<#BFA6FF><bold>🗳 Vote Site #4"
+      lore:
+        - "<#E5E5E5>Vote on our fourth voting site"
+        - "<#E5E5E5>for rewards!"
+        - " "
+        - "<#BFA6FF>Click to get the link!"
+      link: "https://example.com/vote4"
+
+    site5:
+      slot: 15
+      material: ORANGE_CANDLE
+      name: "<#FFD6A5><bold>🗳 Vote Site #5"
+      lore:
+        - "<#E5E5E5>Vote on our fifth voting site"
+        - "<#E5E5E5>for rewards!"
+        - " "
+        - "<#FFD6A5>Click to get the link!"
+      link: "https://example.com/vote5"
+

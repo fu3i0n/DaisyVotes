@@ -2,7 +2,7 @@
 SETLOCAL
 
 set plugin=DaisyVotes
-set version=1.4
+set version=1.5
 set target="D:\Desktop\DaisyVotes\jar
 set source=.\build\libs\%plugin%-%version%-shaded.jar
 set destination=%target%\%plugin%-%version%.jar
